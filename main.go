@@ -12,8 +12,8 @@ import (
 
 var DEBUG_MODE bool = false
 
-func translate(text string, target string) (string, error) {
-	apiURL := fmt.Sprintf("https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=%s&dt=t&q=%s", target, url.QueryEscape(text))
+func translate(text string, target string, from string) (string, error) {
+	apiURL := fmt.Sprintf("https://translate.googleapis.com/translate_a/single?client=gtx&sl=%s&tl=%s&dt=t&q=%s", from, target, url.QueryEscape(text))
 
 	req, err := http.NewRequest("GET", apiURL, nil)
 	if err != nil {
@@ -40,6 +40,7 @@ func translate(text string, target string) (string, error) {
 	}
 
 	if DEBUG_MODE {
+		fmt.Println("URL:", apiURL)
 		fmt.Println("JSON recebido:", string(bodyBytes))
 	}
 
@@ -68,15 +69,25 @@ func main() {
 	}
 
 	text := os.Args[1]
+	fromLang := "auto"
 	targetLang := "en"
 
 	if len(os.Args) > 2 {
 		if strings.HasPrefix(os.Args[2], "-") {
 			targetLang = strings.TrimPrefix(os.Args[2], "-")
 		}
+
+		if len(os.Args) > 3 {
+			if strings.HasPrefix(os.Args[3], "-from:") {
+				fromLang = strings.TrimPrefix(os.Args[3], "-from:")
+				if fromLang == "" {
+					fromLang = "auto"
+				}
+			}
+		}
 	}
 
-	translation, err := translate(text, targetLang)
+	translation, err := translate(text, targetLang, fromLang)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
