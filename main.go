@@ -10,38 +10,42 @@ import (
 	"strings"
 )
 
+var DEBUG_MODE bool = false
+
 func translate(text string, target string) (string, error) {
 	apiURL := fmt.Sprintf("https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=%s&dt=t&q=%s", target, url.QueryEscape(text))
 
 	req, err := http.NewRequest("GET", apiURL, nil)
 	if err != nil {
-		return "", fmt.Errorf("Error on request make: %v", err)
+		return "", fmt.Errorf("error on request make: %v", err)
 	}
 	req.Header.Set("User-Agent", "Mozilla/5.0")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("Error on request exec: %v", err)
+		return "", fmt.Errorf("error on request exec: %v", err)
 	}
 	defer resp.Body.Close()
 
 	// Response
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("Error: status %d, response: %s", resp.StatusCode, string(body))
+		return "", fmt.Errorf("error: status %d, response: %s", resp.StatusCode, string(body))
 	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("Error on response read: %v", err)
+		return "", fmt.Errorf("error on response read: %v", err)
 	}
 
-	//fmt.Println("JSON recebido:", string(bodyBytes))
+	if DEBUG_MODE {
+		fmt.Println("JSON recebido:", string(bodyBytes))
+	}
 
 	var result []interface{}
 	if err := json.Unmarshal(bodyBytes, &result); err != nil {
-		return "", fmt.Errorf("Error on JSON read: %v", err)
+		return "", fmt.Errorf("error on JSON read: %v", err)
 	}
 
 	if len(result) > 0 {
@@ -54,7 +58,7 @@ func translate(text string, target string) (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("Not Found.")
+	return "", fmt.Errorf("not found")
 }
 
 func main() {

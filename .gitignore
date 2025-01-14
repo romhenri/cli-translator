@@ -1,2 +1,10 @@
-main.o
+# build
+/out/
+/dist/
+/build/
+
+*.o
 *.exe
+/out/*.exe
+/dist/*.exe
+/build/*.exe
