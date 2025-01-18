@@ -12,8 +12,14 @@ import (
 
 var DEBUG_MODE bool = false
 
-func translate(text string, target string, from string) (string, error) {
-	apiURL := fmt.Sprintf("https://translate.googleapis.com/translate_a/single?client=gtx&sl=%s&tl=%s&dt=t&q=%s", from, target, url.QueryEscape(text))
+func translate(text string, target string, from string, includeDetails bool) (string, error) {
+	detailParams := "t"
+	if includeDetails {
+		detailParams = "t&dt=bd"
+	}
+
+	apiURL := fmt.Sprintf("https://translate.googleapis.com/translate_a/single?client=gtx&sl=%s&tl=%s&dt=%s&q=%s",
+		from, target, detailParams, url.QueryEscape(text))
 
 	req, err := http.NewRequest("GET", apiURL, nil)
 	if err != nil {
@@ -49,28 +55,58 @@ func translate(text string, target string, from string) (string, error) {
 		return "", fmt.Errorf("error on JSON read: %v", err)
 	}
 
+	var translatedText string
+	var synonyms []string
+
 	if len(result) > 0 {
 		if firstArray, ok := result[0].([]interface{}); ok && len(firstArray) > 0 {
 			if translationData, ok := firstArray[0].([]interface{}); ok && len(translationData) > 0 {
-				if translatedText, ok := translationData[0].(string); ok {
-					return translatedText, nil
+				if text, ok := translationData[0].(string); ok {
+					translatedText = text
+				}
+			}
+		}
+
+		// Synonyms
+		if includeDetails && len(result) > 1 {
+			if definitions, ok := result[1].([]interface{}); ok {
+				for _, def := range definitions {
+					if defArray, ok := def.([]interface{}); ok && len(defArray) > 1 {
+						grammaticalType := defArray[0].(string) // Tipo gramatical
+						if synonymsList, ok := defArray[1].([]interface{}); ok {
+							for _, synonym := range synonymsList {
+								if synonymStr, ok := synonym.(string); ok {
+									synonyms = append(synonyms, fmt.Sprintf("%s (%s)", synonymStr, grammaticalType))
+								}
+							}
+						}
+					}
 				}
 			}
 		}
 	}
 
-	return "", fmt.Errorf("not found")
+	if translatedText == "" {
+		return "", fmt.Errorf("translation not found")
+	}
+
+	if includeDetails && len(synonyms) > 0 {
+		return fmt.Sprintf("%s\n\n- %s", translatedText, strings.Join(synonyms, "\n- ")), nil
+	}
+
+	return translatedText, nil
 }
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Use: cli-translater <texto> [-idioma]")
+		fmt.Println("Use: cli-translater <texto> [-idioma] [-d]")
 		return
 	}
 
 	text := os.Args[1]
 	fromLang := "auto"
 	targetLang := "en"
+	includeDetails := false
 
 	if len(os.Args) > 2 {
 		if strings.HasPrefix(os.Args[2], "-") {
@@ -78,16 +114,20 @@ func main() {
 		}
 
 		if len(os.Args) > 3 {
-			if strings.HasPrefix(os.Args[3], "-from:") {
-				fromLang = strings.TrimPrefix(os.Args[3], "-from:")
-				if fromLang == "" {
-					fromLang = "auto"
+			for _, arg := range os.Args[3:] {
+				if strings.HasPrefix(arg, "-from:") {
+					fromLang = strings.TrimPrefix(arg, "-from:")
+					if fromLang == "" {
+						fromLang = "auto"
+					}
+				} else if arg == "-d" {
+					includeDetails = true
 				}
 			}
 		}
 	}
 
-	translation, err := translate(text, targetLang, fromLang)
+	translation, err := translate(text, targetLang, fromLang, includeDetails)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
