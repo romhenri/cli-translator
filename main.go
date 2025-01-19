@@ -1,3 +1,4 @@
+// CLI Translator by @romhenri
 package main
 
 import (
@@ -59,6 +60,7 @@ func translate(text string, target string, from string, includeDetails bool) (st
 	var synonyms []string
 
 	if len(result) > 0 {
+		// Translation
 		if firstArray, ok := result[0].([]interface{}); ok && len(firstArray) > 0 {
 			if translationData, ok := firstArray[0].([]interface{}); ok && len(translationData) > 0 {
 				if text, ok := translationData[0].(string); ok {
@@ -72,11 +74,12 @@ func translate(text string, target string, from string, includeDetails bool) (st
 			if definitions, ok := result[1].([]interface{}); ok {
 				for _, def := range definitions {
 					if defArray, ok := def.([]interface{}); ok && len(defArray) > 1 {
-						grammaticalType := defArray[0].(string) // Tipo gramatical
+						grammaticalType := defArray[0].(string)
 						if synonymsList, ok := defArray[1].([]interface{}); ok {
 							for _, synonym := range synonymsList {
 								if synonymStr, ok := synonym.(string); ok {
-									synonyms = append(synonyms, fmt.Sprintf("%s (%s)", synonymStr, grammaticalType))
+									capitalizedSynonym := strings.ToUpper(synonymStr[:1]) + synonymStr[1:]
+									synonyms = append(synonyms, fmt.Sprintf("%s (%s)", capitalizedSynonym, grammaticalType))
 								}
 							}
 						}
@@ -103,6 +106,7 @@ func main() {
 		return
 	}
 
+	// Default values
 	text := os.Args[1]
 	fromLang := "auto"
 	targetLang := "en"
