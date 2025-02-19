@@ -4,11 +4,24 @@
 
 <hr>
 
+### Scripts
+
+Run
+```bash
+go run main.go [Parameters]
+```
+
+Build
+```bash
+go build main.go
+```
+
+
 ### Ajustes e melhorias
 
--   [x] Tradução Direta;
+-   [x] Tradução Única (Single Mode);
 -   [x] Detalhes de Tradução;
--   [ ] CLI Contínua de Tradução;
+-   [x] Tradução Contínua (Continuous Mode).
 
 <hr>
 
@@ -33,7 +46,7 @@
       </a>
     </td>
     <td width="75%" align="center">
-        <p>Projeto desenvolvido para oraticar o uso da linguagem <strong>Go</strong> e resolver uma demanda pessoal de traduções rápidas</p><br>
+        <p>Projeto desenvolvido para praticar o uso da linguagem <strong>Go</strong> e resolver uma demanda pessoal de traduções rápidas com praticidade</p><br>
         <sub>Iniciado: Dia 12, de Janeiro (2025)</sub>
     </td>
   </tr>
