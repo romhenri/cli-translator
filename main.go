@@ -11,8 +11,8 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Single: cli-translator <text> [-lang] [-d]")
-		fmt.Println("Continuous: cli-translator -lang")
+		fmt.Println("  Single: cli-translator <text> [-lang] [-from:source] [-d]")
+		fmt.Println("  Continuous: cli-translator -lang")
 		return
 	}
 
@@ -23,8 +23,7 @@ func main() {
 	includeDetails := false
 
 	if len(os.Args) > 1 {
-		if strings.HasPrefix(os.Args[1], "-") {
-			// Continuous Mode
+		if strings.HasPrefix(os.Args[1], "-") && !strings.HasPrefix(os.Args[1], "-from:") {
 			targetLang = strings.TrimPrefix(os.Args[1], "-")
 			fmt.Printf("CLI-Translator [to %s]\n", targetLang)
 			interactiveMode(targetLang, fromLang, includeDetails)
@@ -42,6 +41,14 @@ func main() {
 				}
 			} else if arg == "-d" {
 				includeDetails = true
+			} else if strings.HasPrefix(arg, "-") && len(arg) > 1 {
+				targetLang = strings.TrimPrefix(arg, "-")
+			} else {
+				if text != "" {
+					text += " " + arg
+				} else {
+					text = arg
+				}
 			}
 		}
 	}
