@@ -12,7 +12,7 @@ import (
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("  Single: cli-translator <text> [-lang] [-from:source] [-d]")
-		fmt.Println("  Continuous: cli-translator -lang")
+		fmt.Println("  Continuous: cli-translator -lang [-from:source]")
 		return
 	}
 
@@ -25,8 +25,19 @@ func main() {
 	if len(os.Args) > 1 {
 		if strings.HasPrefix(os.Args[1], "-") && !strings.HasPrefix(os.Args[1], "-from:") {
 			targetLang = strings.TrimPrefix(os.Args[1], "-")
-			fmt.Printf("CLI-Translator [to %s]\n", targetLang)
-			interactiveMode(targetLang, fromLang, includeDetails)
+			
+			// "-from:" in Continuous Mode
+			for _, arg := range os.Args[2:] {
+				if strings.HasPrefix(arg, "-from:") {
+					fromLang = strings.TrimPrefix(arg, "-from:")
+					if fromLang == "" {
+						fromLang = "auto"
+					}
+				}
+			}
+
+			fmt.Printf("CLI-Translator [to %s] [from %s]\n", targetLang, fromLang)
+			continuousMode(targetLang, fromLang, includeDetails)
 			return
 		}
 		text = os.Args[1]
@@ -64,7 +75,7 @@ func main() {
 }
 
 // Continuous Mode
-func interactiveMode(targetLang, fromLang string, includeDetails bool) {
+func continuousMode(targetLang, fromLang string, includeDetails bool) {
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("> ")

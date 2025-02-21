@@ -16,7 +16,6 @@ Build
 go build main.go
 ```
 
-
 ### Ajustes e melhorias
 
 -   [x] Tradução Única (Single Mode);
