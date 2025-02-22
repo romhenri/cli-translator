@@ -7,12 +7,19 @@ import (
 	"os"
 	"strings"
 	"cli-translator/services"
+	"cli-translator/config"
 )
 
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("  Single: cli-translator <text> [-lang] [-from:source] [-d] [-debug]")
 		fmt.Println("  Continuous: cli-translator -lang [-from:source] [-debug]")
+		return
+	}
+
+	// Version flag
+	if os.Args[1] == "-version" || os.Args[1] == "-v" {
+		fmt.Println("CLI Translator", config.Version)
 		return
 	}
 
