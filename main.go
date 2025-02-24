@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"cli-translator/services"
+	"cli-translator/handlers"
 	"cli-translator/config"
 )
 
@@ -20,6 +21,18 @@ func main() {
 	// Version flag
 	if os.Args[1] == "-version" || os.Args[1] == "-v" {
 		fmt.Println("CLI Translator", config.Version)
+		return
+	}
+
+	// History flag
+	if os.Args[1] == "--history" {
+		history.ShowHistory()
+		return
+	}
+
+	// Clear History flag
+	if os.Args[1] == "--clear-history" {
+		history.ClearHistory()
 		return
 	}
 
@@ -92,6 +105,7 @@ func main() {
 		return
 	}
 
+	history.SaveToHistory(text, fromLang, targetLang, translation)
 	fmt.Println(">", translation)
 }
 
