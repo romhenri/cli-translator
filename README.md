@@ -16,6 +16,12 @@ Build
 go build main.go
 ```
 
+#### Versão com Cobra (CLI Framework)
+
+```bash
+go get github.com/spf13/cobra@latest
+```
+
 ### Ajustes e melhorias
 
 -   [x] Tradução Única (Single Mode);

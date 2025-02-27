@@ -20,7 +20,7 @@ func main() {
 
 	// Version flag
 	if os.Args[1] == "-version" || os.Args[1] == "-v" {
-		fmt.Println("CLI Translator", config.Version)
+		fmt.Println(config.AppName, config.Version)
 		return
 	}
 
